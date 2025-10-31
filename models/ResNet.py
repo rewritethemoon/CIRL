@@ -2,7 +2,9 @@ import os
 import torch
 from torch import nn
 from torch.utils import model_zoo
-from torchvision.models.resnet import BasicBlock, model_urls, Bottleneck
+from torchvision.models.resnet import BasicBlock, Bottleneck
+from torchvision.models import resnet50, ResNet50_Weights
+
 import torch.nn.functional as F
 import numpy as np
 import torchvision.models as models

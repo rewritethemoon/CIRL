@@ -1,13 +1,10 @@
 import os
 import torch
 from torch import nn
-from torch.utils import model_zoo
 from torchvision.models.resnet import BasicBlock, Bottleneck
-from torchvision.models import resnet50, ResNet50_Weights
-
+from torchvision.models import ResNet50_Weights, ResNet101_Weights, ResNet18_Weights, ResNet34_Weights, ResNet152_Weights
 import torch.nn.functional as F
 import numpy as np
-import torchvision.models as models
 
 
 class ResNet(nn.Module):
@@ -65,42 +62,53 @@ class ResNet(nn.Module):
         return x
 
 
+# ---- Modern pretrained loading ----
 def resnet18(pretrained=True, **kwargs):
     model = ResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
     if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['resnet18']), strict=False)
+        weights = ResNet18_Weights.IMAGENET1K_V1
+        state_dict = weights.get_state_dict(progress=True)
+        model.load_state_dict(state_dict, strict=False)
     return model
 
 
 def resnet34(pretrained=True, **kwargs):
     model = ResNet(BasicBlock, [3, 4, 6, 3], **kwargs)
     if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['resnet34']))
+        weights = ResNet34_Weights.IMAGENET1K_V1
+        state_dict = weights.get_state_dict(progress=True)
+        model.load_state_dict(state_dict, strict=False)
     return model
 
 
 def resnet50(pretrained=True, **kwargs):
     model = ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
     if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['resnet50']), strict=False)
+        weights = ResNet50_Weights.IMAGENET1K_V1
+        state_dict = weights.get_state_dict(progress=True)
+        model.load_state_dict(state_dict, strict=False)
     return model
 
 
 def resnet101(pretrained=True, **kwargs):
     model = ResNet(Bottleneck, [3, 4, 23, 3], **kwargs)
     if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['resnet101']))
+        weights = ResNet101_Weights.IMAGENET1K_V1
+        state_dict = weights.get_state_dict(progress=True)
+        model.load_state_dict(state_dict, strict=False)
     return model
 
 
 def resnet152(pretrained=True, **kwargs):
     model = ResNet(Bottleneck, [3, 8, 36, 3], **kwargs)
     if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['resnet152']))
+        weights = ResNet152_Weights.IMAGENET1K_V1
+        state_dict = weights.get_state_dict(progress=True)
+        model.load_state_dict(state_dict, strict=False)
     return model
 
 
-
+# ---- Convolutional backbone ----
 class Convolution(nn.Module):
     def __init__(self, c_in, c_out):
         super(Convolution, self).__init__()
@@ -111,17 +119,15 @@ class Convolution(nn.Module):
         return self.relu(self.conv(x))
 
 
-
 class ConvNet(nn.Module):
     def __init__(self, c_hidden=64):
-        super(ConvNet,self).__init__()
+        super(ConvNet, self).__init__()
         self.conv1 = Convolution(3, c_hidden)
         self.conv2 = Convolution(c_hidden, c_hidden)
         self.conv3 = Convolution(c_hidden, c_hidden)
         self.conv4 = Convolution(c_hidden, c_hidden)
 
     def forward(self, x):
-        # self._check_input(x)
         x = self.conv1(x)
         x = F.max_pool2d(x, 2)
         x = self.conv2(x)

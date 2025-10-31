@@ -58,6 +58,9 @@ class FourierDGDataset(Dataset):
         label = self.flat_labels[index]
         domain = self.flat_domains[index]
         img_name = os.path.join(self.args.input_dir, img_name)
+        if not os.path.isabs(img_name):
+        # Thêm prefix gốc tới thư mục ảnh (ví dụ: /kaggle/input/pacs-dataset/kfold)
+         img_name = os.path.join(args.image_root, img_name)
         img = Image.open(img_name).convert('RGB')
         img_o = self.transformer(img)
 

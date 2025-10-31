@@ -20,12 +20,17 @@ class DGDataset(Dataset):
 
     def __getitem__(self, index):
         img_name = self.names[index]
-        img_name = os.path.join(self.args.input_dir, img_name)
+        # --- nối với thư mục ảnh gốc thay vì input_dir ---
+        if not os.path.isabs(img_name):
+            if hasattr(self.args, 'image_root') and self.args.image_root is not None:
+                img_name = os.path.join(self.args.image_root, img_name)
+    
         img = Image.open(img_name).convert('RGB')
         if self.transformer is not None:
             img = self.transformer(img)
         label = self.labels[index]
         return img, label
+
 
 
 
@@ -57,10 +62,10 @@ class FourierDGDataset(Dataset):
         img_name = self.flat_names[index]
         label = self.flat_labels[index]
         domain = self.flat_domains[index]
-        img_name = os.path.join(self.args.input_dir, img_name)
         if not os.path.isabs(img_name):
-        # Thêm prefix gốc tới thư mục ảnh (ví dụ: /kaggle/input/pacs-dataset/kfold)
-         img_name = os.path.join(args.image_root, img_name)
+            if hasattr(self.args, 'image_root') and self.args.image_root is not None:
+                img_name = os.path.join(self.args.image_root, img_name)
+    
         img = Image.open(img_name).convert('RGB')
         img_o = self.transformer(img)
 
@@ -86,7 +91,9 @@ class FourierDGDataset(Dataset):
             raise ValueError("Not implemented")
         img_idx = random.randint(0, len(self.names[domain_idx])-1)
         img_name_sampled = self.names[domain_idx][img_idx]
-        img_name_sampled = os.path.join(self.args.input_dir, img_name_sampled)
+        if not os.path.isabs(img_name_sampled):
+            if hasattr(self.args, 'image_root') and self.args.image_root is not None:
+                img_name_sampled = os.path.join(self.args.image_root, img_name_sampled)
         img_sampled = Image.open(img_name_sampled).convert('RGB')
         label_sampled = self.labels[domain_idx][img_idx]
         return self.transformer(img_sampled), label_sampled, domain_idx

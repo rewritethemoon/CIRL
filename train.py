@@ -28,6 +28,8 @@ def get_args():
     parser.add_argument("--output_dir", default=None, help="The directory to save logs and models")
     parser.add_argument("--config", default=None, help="Experiment configs")
     parser.add_argument("--tf_logger", type=ast.literal_eval, default=True, help="If true will save tensorboard compatible logs")
+    parser.add_argument("--datalist_dir", default=None, help="Directory containing datalist txt files")
+
     args = parser.parse_args()
     config_file = "config." + args.config.replace("/", ".")
     print(f"\nLoading experiment {args.config}\n")
@@ -244,3 +246,4 @@ def main():
 if __name__ == "__main__":
     torch.backends.cudnn.benchmark = True
     main()
+
